@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <!-- Wukong stays on SDK v1 and keeps its assembly names, so the layer is declared instead of derived. -->
+        <ReadyMLayer>V1</ReadyMLayer>
         <LangVersion>14</LangVersion>
         <OutputType>Library</OutputType>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>

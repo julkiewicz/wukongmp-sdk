@@ -85,7 +85,8 @@ $packages = @(
         Buckets = [ordered]@{
             'net10.0' = @(
                 "$PSScriptRoot\WukongMp.Sdk.Serverside\WukongMp.Sdk.Serverside.csproj"
-                "$coreSdk\ReadyM.Relay.Server.Sdk\ReadyM.Relay.Server.Sdk.csproj"
+                "$coreSdk\ReadyM.Sdk.Serverside\ReadyM.Sdk.Serverside.csproj"
+                "$coreSdk\ReadyM.Sdk.V1.Serverside\ReadyM.Sdk.V1.Serverside.csproj"
             )
         }
     }

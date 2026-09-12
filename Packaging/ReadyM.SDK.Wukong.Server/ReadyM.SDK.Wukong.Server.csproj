@@ -23,7 +23,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\WukongMp.Sdk.Serverside\WukongMp.Sdk.Serverside.csproj" PrivateAssets="all" />
-        <ProjectReference Include="$(CoreSdkRoot)\src\ReadyM.Relay.Server.Sdk\ReadyM.Relay.Server.Sdk.csproj" PrivateAssets="all" />
+        <ProjectReference Include="$(CoreSdkRoot)\src\ReadyM.Sdk.Serverside\ReadyM.Sdk.Serverside.csproj" PrivateAssets="all" />
+        <ProjectReference Include="$(CoreSdkRoot)\src\ReadyM.Sdk.V1.Serverside\ReadyM.Sdk.V1.Serverside.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <!--
@@ -36,7 +37,8 @@
 
     <ItemGroup>
         <SdkPackageAssembly Include="WukongMp.Sdk.Serverside" />
-        <SdkPackageAssembly Include="ReadyM.Relay.Server.Sdk" />
+        <SdkPackageAssembly Include="ReadyM.Sdk.Serverside" />
+        <SdkPackageAssembly Include="ReadyM.Sdk.V1.Serverside" />
     </ItemGroup>
 
     <!-- BEGIN GENERATED DEPENDENCIES -->
