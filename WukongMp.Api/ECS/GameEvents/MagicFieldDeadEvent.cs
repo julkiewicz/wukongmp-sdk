@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using b1;
 using ReadyM.Api.Mapping.Events;
 

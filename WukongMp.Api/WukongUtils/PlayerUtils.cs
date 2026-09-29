@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using b1;
 using BtlB1;
 using BtlShare;
 using ReadyM.Api.ECS.Worlds;
 using ReadyM.Api.Mapping.Events;
+using ReadyM.Api.Mapping.Tags;
 using ReadyM.Relay.Client.State;
 using ReadyM.Wukong.Common.ECS.Components;
 using ReadyM.Wukong.Common.ECS.Values;

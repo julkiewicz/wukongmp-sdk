@@ -1,9 +1,8 @@
-using System.Reflection;
+﻿using System.Reflection;
 using b1;
 using BtlShare;
 using HarmonyLib;
 using PreludeLib.Attributes;
-using ReadyM.Api.Mapping.Events;
 using UnrealEngine.Engine;
 using WukongMp.Api.Configuration;
 using WukongMp.Api.ECS.GameEvents;
@@ -47,9 +46,7 @@ internal class PatchOnSwitchBulletTarget
                 var projectileClass = ProjectileActor.GetClass();
                 if (projectileClass != null)
                 {
-                    var gameEvent = new ProjectileTargetEvent(entity.Value, projectileClass.GetName(), targetEntity.Value, SocketName);
-                    var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                    DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                    var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new ProjectileTargetEvent(entity.Value, projectileClass.GetName(), targetEntity.Value, SocketName));
                     if (sent)
                         Logging.LogDebug("New projectile target sent for {Projectile} (Owner {NickName}) as: {Target}", projectileClass.GetName(), entity.Value.GetNickname().Nickname, InnerTarget.GetName());
                 }
@@ -99,9 +96,7 @@ internal class PatchOnSwitchBulletInfoIfNeed
             var projectileClass = ProjectileActor.GetClass();
             if (projectileClass != null)
             {
-                var gameEvent = new ProjectileSwitchEvent(entity.Value, projectileClass.GetName(), BulletSwitchID, SwitchIdx);
-                var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new ProjectileSwitchEvent(entity.Value, projectileClass.GetName(), BulletSwitchID, SwitchIdx));
                 if (sent)
                     Logging.LogDebug("Switch projectile info sent for {Projectile} (Owner {NickName}) with switch id: {SwitchID}", projectileClass.GetName(), entity.Value.GetNickname().Nickname, BulletSwitchID);
             }
@@ -131,9 +126,7 @@ internal static class PatchOnProjectileDead
             var projectileClass = projectile.GetClass();
             if (projectileClass != null)
             {
-                var gameEvent = new ProjectileDeadEvent(entity.Value, projectileClass.GetName(), Reason);
-                var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new ProjectileDeadEvent(entity.Value, projectileClass.GetName(), Reason));
                 if (sent)
                     Logging.LogDebug("BUS_ProjectileLifeComp OnProjectileDead send with reason: {Reason}", Reason);
             }
@@ -169,9 +162,7 @@ internal static class PatchOnSetMoveMode
             var projectileClass = projectile.GetClass();
             if (projectileClass != null)
             {
-                var gameEvent = new ProjectileMoveModeEvent(entity.Value, projectileClass.GetName(), MoveMode);
-                var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new ProjectileMoveModeEvent(entity.Value, projectileClass.GetName(), MoveMode));
                 if (sent)
                     Logging.LogDebug("New move mode sent for {Projectile} (Owner {NickName}) as: {MoveMode}", projectileClass.GetName(), entity.Value.GetNickname().Nickname, MoveMode);
             }

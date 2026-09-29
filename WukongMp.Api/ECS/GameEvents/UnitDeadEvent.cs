@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using b1;
 using BtlShare;
 using Friflo.Engine.ECS;

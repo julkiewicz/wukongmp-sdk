@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using ReadyM.Api.Mapping.Events;
 
 namespace WukongMp.Api.ECS.GameEvents;

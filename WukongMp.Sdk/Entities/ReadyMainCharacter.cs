@@ -2,6 +2,7 @@ using System;
 using System.Numerics;
 using Friflo.Engine.ECS;
 using ReadyM.Api.Idents;
+using ReadyM.Api.Mapping.Tags;
 using ReadyM.Wukong.Common.ECS.Components;
 using ReadyM.Wukong.Common.ECS.Values;
 using WukongMp.Api;

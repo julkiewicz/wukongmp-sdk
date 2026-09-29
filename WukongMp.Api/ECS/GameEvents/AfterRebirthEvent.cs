@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Friflo.Engine.ECS;
 using ReadyM.Api.Mapping.Events;
 

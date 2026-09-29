@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -9,6 +9,7 @@ using BtlShare;
 using HarmonyLib;
 using PreludeLib.Attributes;
 using ReadyM.Api.Mapping.Events;
+using ReadyM.Api.Mapping.Tags;
 using ReadyM.Wukong.Common.ECS.Components;
 using UnrealEngine.Engine;
 using UnrealEngine.Runtime;
@@ -77,7 +78,8 @@ internal static class PatchOnCastImmobilize
         if (!DI.Instance.MappingPolicyDir.IsMainCharacterMapped(castingCharacter, out var castingMainEntity))
             return false;
 
-        if (!DI.Instance.MappedEvent.NotifyEcsIfApplicable(new CastImmobilizeEvent(castingMainEntity.Value)).Runs())
+        DI.Instance.MappedEvent.NotifyEcsIfApplicable(new CastImmobilizeEvent(castingMainEntity.Value));
+        if (!DI.Instance.MappedEvent.CanGameEventRunLocally(new CastImmobilizeEvent(castingMainEntity.Value)).Runs())
             return false;
 
         Debug.Assert(DI.Instance.AreaState.IsMasterClient, "DI.Instance.AreaState.IsMasterClient");
@@ -164,9 +166,7 @@ internal static class PatchOnCastImmobilize
             // broadcast trigger immobilize on targets
             if (DI.Instance.MappingPolicyDir.IsCharacterMapped(item, out var entity))
             {
-                var gameEvent = new TriggerImmobilizeEvent(entity.Value, castingMainEntity.Value, hasBuff);
-                var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new TriggerImmobilizeEvent(entity.Value, castingMainEntity.Value, hasBuff));
                 if (sent)
                     Logging.LogDebug("Broadcasting trigger immobilize for target {Target}", item.GetName());
             }
@@ -214,7 +214,9 @@ internal static class PatchRelieveImmobilized
         if (!DI.Instance.MappingPolicyDir.IsCharacterMapped(owner, out var entity))
             return true;
 
-        return DI.Instance.MappedEvent.NotifyEcsIfApplicable(new RelieveImmobilizeEvent(entity.Value)).Runs();
+        DI.Instance.MappedEvent.NotifyEcsIfApplicable(new RelieveImmobilizeEvent(entity.Value));
+
+        return DI.Instance.MappedEvent.CanGameEventRunLocally(new RelieveImmobilizeEvent(entity.Value)).Runs();
     }
 }
 
@@ -237,10 +239,11 @@ internal static class PatchOnTriggerImmobilizedBreak
 
         // TODO: This used to be forcibly replaced by RelieveImmobilize, find out why
         if (DI.Instance.MappingPolicyDir.IsCharacterMapped(owner, out var entity))
-            return DI.Instance.MappedEvent.NotifyEcsIfApplicable(new RelieveImmobilizeEvent(entity.Value)).Runs();
-
-        // NOTE: The master-client policy does not read the subject, so an unmapped owner asks with none.
-        return DI.Instance.MappedEvent.CanGameEventRunLocally(new RelieveImmobilizeEvent(default)).Runs();
+        {
+            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new RelieveImmobilizeEvent(entity.Value));
+        }
+        
+        return DI.Instance.MappedEvent.CanGameEventRunLocally(new RelieveImmobilizeEvent(entity ?? default)).Runs();
     }
 }
 
@@ -415,9 +418,7 @@ internal static class PatchOnUnitCastSkillTry
         {
             if (DI.Instance.MappingPolicyDir.IsMainCharacterMapped(owner, out var entity))
             {
-                var gameEvent = new PhantomRushEvent(entity.Value, CSI.SkillDirection);
-                var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new PhantomRushEvent(entity.Value, CSI.SkillDirection));
                 if (sent)
                     Logging.LogDebug("Sending phantom rush with direction: {Direction}", CSI.SkillDirection);
             }
@@ -426,9 +427,7 @@ internal static class PatchOnUnitCastSkillTry
         {
             if (DI.Instance.MappingPolicyDir.IsMonsterTamerMapped(owner as BGUCharacterCS, out var entity))
             {
-                var gameEvent = new CastSkillEvent(entity.Value, CSI.SkillID, CSI.SourceType);
-                var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+                var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new CastSkillEvent(entity.Value, CSI.SkillID, CSI.SourceType));
                 if (sent)
                     Logging.LogDebug("Sent CBG skill cast for skill {SkillId}", CSI.SkillID);
             }
@@ -459,11 +458,7 @@ internal static class PatchExitPhantomRush
 
         var main = mainEntity.Value.GetState();
 
-        var gameEvent = new ExitPhantomRushEvent(mainEntity.Value);
-
-        var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-
-        DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+        var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new ExitPhantomRushEvent(mainEntity.Value));
         if (sent)
             Logging.LogDebug("Broadcasting phantom rush exit for player {Nickname}", mainEntity.Value.GetNickname().Nickname);
 
@@ -593,9 +588,7 @@ internal class PatchOnTransBeginSpawnNewOne
         var pawn = __instance.GetOwner();
         if (DI.Instance.MappingPolicyDir.IsMainCharacterMapped(pawn, out var mainEntity))
         {
-            var gameEvent = new PlayerTransBeginEvent(mainEntity.Value, ToReplaceUnitResID, ToReplaceUnitBornSkillID, EnableBlendViewTarget, TransBeginType);
-            var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-            DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+            var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new PlayerTransBeginEvent(mainEntity.Value, ToReplaceUnitResID, ToReplaceUnitBornSkillID, EnableBlendViewTarget, TransBeginType));
             if (sent)
             {
                 Logging.LogDebug("OnTransBeginSpawnNewOne: Sending transform for player {Name} to unit with id {UnitId}", playerState.LocalMainCharacter?.GetNickname().Nickname, ToReplaceUnitResID);
@@ -636,9 +629,7 @@ internal class PatchOnTransBackSpawnNewOne
 
         if (DI.Instance.MappingPolicyDir.IsMainCharacterMapped(pawn, out var mainEntity))
         {
-            var gameEvent = new PlayerTransEndEvent(mainEntity.Value, ToReplaceUnitResID, ToReplaceUnitBornSkillID, EnableBlendViewTarget, TransEndType);
-            var sent = DI.Instance.MappedEvent.CanGameEventNotifyEcs(gameEvent) == GameEventNotifyResult.Notify;
-            DI.Instance.MappedEvent.NotifyEcsIfApplicable(gameEvent);
+            var sent = DI.Instance.MappedEvent.NotifyEcsIfApplicable(new PlayerTransEndEvent(mainEntity.Value, ToReplaceUnitResID, ToReplaceUnitBornSkillID, EnableBlendViewTarget, TransEndType));
             if (sent)
                 Logging.LogDebug("OnTransBackSpawnNewOne: Sending transform for player {Name} to unit with id {UnitId}", mainEntity.Value.GetNickname().Nickname, ToReplaceUnitResID);
         }

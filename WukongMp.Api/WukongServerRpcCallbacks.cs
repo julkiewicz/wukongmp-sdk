@@ -1,4 +1,5 @@
-using ReadyM.Api.Mapping.Events;
+﻿using ReadyM.Api.Mapping.Events;
+using ReadyM.Api.Mapping.Tags;
 using ReadyM.Api.Multiplayer;
 using ReadyM.Api.Multiplayer.RPC;
 using ReadyM.Wukong.Common.Rpc;
