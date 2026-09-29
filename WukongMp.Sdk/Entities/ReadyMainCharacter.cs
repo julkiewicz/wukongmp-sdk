@@ -2,7 +2,6 @@ using System;
 using System.Numerics;
 using Friflo.Engine.ECS;
 using ReadyM.Api.Idents;
-using ReadyM.Api.Mapping.Tags;
 using ReadyM.Wukong.Common.ECS.Components;
 using ReadyM.Wukong.Common.ECS.Values;
 using WukongMp.Api;
@@ -102,12 +101,12 @@ public readonly struct ReadyMainCharacter
             entity: Entity,
             location: location.ToFVector(),
             rotation: rotation.ToFRotator()
-        ), default(EmptyContext));
+        ));
     }
 
     public void RebirthInPlace()
     {
-        DI.Instance.MappedEvent.InvokeInGameAndNotifyEcs(new RebirthPlayerEvent(Entity, false), default(EmptyContext));
+        DI.Instance.MappedEvent.InvokeInGameAndNotifyEcs(new RebirthPlayerEvent(Entity, false));
     }
 
     public void RebirthAtShrine(int shrineId)
@@ -118,7 +117,7 @@ public readonly struct ReadyMainCharacter
         DI.Instance.MappedEvent.InvokeInGameAndNotifyEcs(new PartyRespawnEvent(
             entity: Entity,
             birthShrineId: shrineId
-        ), default(EmptyContext));
+        ));
     }
 
     public void EnableInteraction(bool enabled)

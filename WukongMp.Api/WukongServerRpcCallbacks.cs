@@ -1,5 +1,4 @@
-﻿using ReadyM.Api.Mapping.Events;
-using ReadyM.Api.Mapping.Tags;
+using ReadyM.Api.Mapping.Events;
 using ReadyM.Api.Multiplayer;
 using ReadyM.Api.Multiplayer.RPC;
 using ReadyM.Wukong.Common.Rpc;
@@ -33,8 +32,7 @@ internal partial class WukongServerRpcCallbacks(IMappedEventManager mappedEvent)
                     sequenceId: data.SequenceId,
                     waitingPlayers: data.WaitingPlayers,
                     allPlayers: data.AllPlayers
-                ), default(EmptyContext)
-            );
+                ));
         });
     }
 }

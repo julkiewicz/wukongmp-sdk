@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using b1;
@@ -227,7 +227,7 @@ internal static class SpawningUtils
                 unitName: tamerKind.Name,
                 guid: guid,
                 location: location
-            ), tamerEntity.Entity);
+            ));
         }
     }
 

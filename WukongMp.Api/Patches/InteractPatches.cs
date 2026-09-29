@@ -1,10 +1,9 @@
-﻿using System.Reflection;
+using System.Reflection;
 using b1;
 using BtlB1;
 using BtlShare;
 using HarmonyLib;
 using PreludeLib.Attributes;
-using ReadyM.Api.Mapping.Tags;
 using UnrealEngine.Engine;
 using WukongMp.Api.Configuration;
 using WukongMp.Api.ECS.Entities;
@@ -36,7 +35,7 @@ internal static class PatchComplexSkillDoInteractAction
             }
 
             Logging.LogDebug("Sending skill interact for {Name} with ID {Id}.", character.GetName(), entity.Value.Entity.GetNetId());
-            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new TamerSkillInteractEvent(entity.Value, Action.ParamsInt[1]), default(EmptyContext));
+            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new TamerSkillInteractEvent(entity.Value, Action.ParamsInt[1]));
         }
     }
 }

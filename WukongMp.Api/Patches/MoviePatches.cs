@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using b1;
 using HarmonyLib;
 using PreludeLib.Attributes;
-using ReadyM.Api.Mapping.Tags;
 using UnrealEngine.Engine;
 using UnrealEngine.LevelSequence;
 using UnrealEngine.MovieScene;
@@ -264,14 +263,14 @@ internal static class PatchTickForMovieSystem
                 localMain.JoiningSequenceLocation = trans.Position.ToFVector();
                 Logging.LogDebug("Sending waiting for sequence with sequenceId {Id}", peakRequest.SequenceID);
 
-                DI.Instance.MappedEvent.NotifyEcsIfApplicable(new WaitingForSequenceEvent(peakRequest.SequenceID, trans.Position.ToFVector()), default(EmptyContext));
+                DI.Instance.MappedEvent.NotifyEcsIfApplicable(new WaitingForSequenceEvent(peakRequest.SequenceID, trans.Position.ToFVector()));
 
                 // some cutscenes cannot be triggered for multiple players
                 // e.g. 3rd act boss attacks one player causing him to enter a cutscene,
                 // but other players are stuck since they are not attacked
                 if (Constants.InstantTriggerSequences.Contains(peakRequest.SequenceID))
                 {
-                    DI.Instance.MappedEvent.NotifyEcsIfApplicable(new PlayMovieRequestEvent(peakRequest.SequenceID, peakRequest.bDisablePlayerControl, peakRequest.bDisableMovementInput, peakRequest.bDisableLookAtInput, peakRequest.bHidePlayer, peakRequest.bHideHud, peakRequest.OverlapBoxGuid, peakRequest.MatchType), default(EmptyContext));
+                    DI.Instance.MappedEvent.NotifyEcsIfApplicable(new PlayMovieRequestEvent(peakRequest.SequenceID, peakRequest.bDisablePlayerControl, peakRequest.bDisableMovementInput, peakRequest.bDisableLookAtInput, peakRequest.bHidePlayer, peakRequest.bHideHud, peakRequest.OverlapBoxGuid, peakRequest.MatchType));
                 }
             }
         }
@@ -328,7 +327,7 @@ internal static class PatchOnSkipCurrentCameraMovie
         if (areaEntity != null && areaEntity.Value.GetMovie().ContainsStartedSequences(sequenceId))
         {
             Logging.LogDebug("Sending skip movie for sequence with sequenceId {Id}", sequenceId);
-            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new SkipMovieEvent(sequenceId), default(EmptyContext));
+            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new SkipMovieEvent(sequenceId));
             return false;
         }
 

@@ -1,16 +1,26 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Numerics;
 using b1;
 using Friflo.Engine.ECS;
-using ReadyM.Api.Mapping.Tags;
+using ReadyM.Api.Mapping.Events;
+using ReadyM.Api.Multiplayer.GameEvents;
+using ReadyM.Wukong.Common.ECS.Components;
 using ReadyM.Wukong.Common.ECS.Values;
 using UnrealEngine.Runtime;
-using WukongMp.Api.Mapping.Policies.Event;
+using WukongMp.Api.Configuration;
+using WukongMp.Api.ECS.Entities;
+using WukongMp.Api.GameEvents;
 
 namespace WukongMp.Api.ECS.GameEvents;
 
-internal readonly struct SpawnSummonEvent(Entity? summoner, string summonGuid, string summonClassPath)
-    : IEquatable<SpawnSummonEvent>, IMappingContext<SpawnSummonContext>
+/// <summary>
+/// Its policy is written by hand: a player summoner summons where it is owned; any other summoner (a quest actor or
+/// another unmapped spawn point) summons on the master client, or on the nearest player with the lowest id when the
+/// summon is close to players.
+/// </summary>
+internal readonly partial struct SpawnSummonEvent(Entity? summoner, string summonGuid, string summonClassPath)
+    : IEquatable<SpawnSummonEvent>, IGameEvent
 {
     public readonly Entity? Summoner = summoner;
     public readonly string SummonGuid = summonGuid;
@@ -38,6 +48,13 @@ internal readonly struct SpawnSummonEvent(Entity? summoner, string summonGuid, s
     public readonly string BornEffectPath = "";
     public readonly List<string> DisappearMontagePathList = [];
     public readonly float DestroyDelayTime;
+
+    /// <summary>Only what the policy reads, to ask before the summon exists.</summary>
+    public SpawnSummonEvent(Entity? summoner, FVector location)
+        : this(summoner, "", "")
+    {
+        Location = location;
+    }
 
     public SpawnSummonEvent(
         Entity? summoner,
@@ -87,6 +104,64 @@ internal readonly struct SpawnSummonEvent(Entity? summoner, string summonGuid, s
         BornEffectPath = bornEffectPath;
         DisappearMontagePathList = disappearMontagePathList;
         DestroyDelayTime = destroyDelayTime;
+    }
+
+    public GameEventNotifyResult CanGameEventNotifyEcs(GameEventContextRegistry contexts)
+        => CanSummon(contexts) ? GameEventNotifyResult.Notify : GameEventNotifyResult.DontNotify;
+
+    public GameEventResult CanGameEventRunLocally(GameEventContextRegistry contexts)
+        => CanSummon(contexts) ? GameEventResult.RunAll : GameEventResult.Rejected;
+
+    public GameEventResult CanEcsInvokeGameEvent(GameEventContextRegistry contexts)
+        => GameEventResult.RunAll;
+
+    private bool CanSummon(GameEventContextRegistry contexts)
+    {
+        if (Summoner != null && (MainCharacterEntity.IsMainCharacter(Summoner.Value) || TamerEntity.IsTamer(Summoner.Value)))
+        {
+            // If a player is the summoner, apply ownership semantics.
+            return contexts.GetContext<OwnershipContext>().OwnsEntity(Summoner.Value);
+        }
+
+        // Summoner is not a mapped entity, e.g. a BGU_QuestActor spawn point
+        var wukong = contexts.GetContext<WukongPlayerContext>();
+        var playerState = wukong.PlayerState;
+        var areaState = wukong.AreaState;
+
+        var localMainEntity = playerState.LocalMainCharacter;
+        if (localMainEntity == null)
+            return false;
+
+        if (playerState.LocalPlayerId == null)
+            return false;
+
+        if (areaState.IsMasterClient) // Master client can always summon, to avoid issues with distant summons and no players around.
+            return true;
+
+        var localPlayerId = playerState.LocalPlayerId.Value;
+        var localPosition = localMainEntity.Value.GetTransform().Position;
+        var squaredDistanceToSummon = FVector.DistSquared(localPosition.ToFVector(), Location);
+        const float squaredSpawnOwnershipRadius = Constants.SpawnOwnershipRadius * Constants.SpawnOwnershipRadius;
+        if (squaredDistanceToSummon > squaredSpawnOwnershipRadius)
+        {
+            return false; // Distant summon -> master as owner
+        }
+
+        // Check if master or another player with lower id is nearby
+        var canSummon = true;
+        wukong.World.Query<MainCharacterComponent, TransformComponent>().ForEachEntity((ref mainComp, ref trans, entity) =>
+        {
+            if (entity == localMainEntity.Value.Entity)
+                return;
+
+            var squaredDistance = Vector3.DistanceSquared(localPosition, trans.Position);
+            if (squaredDistance < squaredSpawnOwnershipRadius && (areaState.MasterClientId == mainComp.PlayerId || mainComp.PlayerId.RawValue < localPlayerId.RawValue))
+            {
+                canSummon = false;
+            }
+        });
+
+        return canSummon;
     }
 
     public bool Equals(SpawnSummonEvent other)

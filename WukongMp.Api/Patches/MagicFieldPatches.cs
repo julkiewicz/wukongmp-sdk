@@ -1,9 +1,8 @@
-﻿using System.Reflection;
+using System.Reflection;
 using b1;
 using BtlB1;
 using HarmonyLib;
 using PreludeLib.Attributes;
-using ReadyM.Api.Mapping.Tags;
 using UnrealEngine.Runtime;
 using WukongMp.Api.Configuration;
 using WukongMp.Api.ECS.GameEvents;
@@ -25,7 +24,7 @@ internal static class PatchOnMagicFieldDead
         if (className.Contains(Constants.SupremeInspectorFirewallName))
         {
             Logging.LogDebug("OnMagicFieldDead send for {Class}", className);
-            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new MagicFieldDeadEvent(className, Reason), default(EmptyContext));
+            DI.Instance.MappedEvent.NotifyEcsIfApplicable(new MagicFieldDeadEvent(className, Reason));
         }
     }
 }

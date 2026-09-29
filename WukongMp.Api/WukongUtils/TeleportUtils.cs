@@ -1,5 +1,4 @@
-﻿using ReadyM.Api.Mapping.Events;
-using ReadyM.Api.Mapping.Tags;
+using ReadyM.Api.Mapping.Events;
 using WukongMp.Api.ECS.Entities;
 using WukongMp.Api.ECS.GameEvents;
 
@@ -15,7 +14,7 @@ internal static class TeleportUtils
         {
             if (localMainComp.TeleportFinishFrames == 0)
             {
-                mappedEvent.InvokeInGameAndNotifyEcs(new TeleportFinishEvent(mainEntity.Entity), default(EmptyContext));
+                mappedEvent.InvokeInGameAndNotifyEcs(new TeleportFinishEvent(mainEntity.Entity));
             }
 
             localMainComp.TeleportFinishFrames--;

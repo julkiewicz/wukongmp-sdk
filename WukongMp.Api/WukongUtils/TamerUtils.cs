@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using b1;
 using BtlShare;
 using Friflo.Engine.ECS;
 using ReadyM.Api.Idents;
 using ReadyM.Api.Mapping.Events;
-using ReadyM.Api.Mapping.Tags;
 using ReadyM.Wukong.Common.ECS.Components;
 using UnrealEngine.Engine;
 using UnrealEngine.Runtime;
@@ -92,7 +91,7 @@ namespace WukongMp.Api.WukongUtils
                 localTamerComp.IsLocallySpawned = true;
 
                 var playerId = DI.Instance.PlayerState.LocalPlayerId ?? default;
-                mappedEvent.InvokeInGameAndNotifyEcs(new UnitSpawnedEvent(tamerEntity.Entity, playerId), default(EmptyContext));
+                mappedEvent.InvokeInGameAndNotifyEcs(new UnitSpawnedEvent(tamerEntity.Entity, playerId));
             }
         }
 
@@ -106,7 +105,7 @@ namespace WukongMp.Api.WukongUtils
                 localTamerComp.IsLocallySpawned = false;
 
                 var playerId = DI.Instance.PlayerState.LocalPlayerId ?? default;
-                mappedEvent.InvokeInGameAndNotifyEcs(new UnitDespawnedEvent(tamerEntity.Entity, playerId), default(EmptyContext));
+                mappedEvent.InvokeInGameAndNotifyEcs(new UnitDespawnedEvent(tamerEntity.Entity, playerId));
             }
         }
 
