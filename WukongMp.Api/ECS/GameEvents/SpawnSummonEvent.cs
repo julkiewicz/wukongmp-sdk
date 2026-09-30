@@ -15,9 +15,9 @@ using WukongMp.Api.GameEvents;
 namespace WukongMp.Api.ECS.GameEvents;
 
 /// <summary>
-/// Its policy is written by hand: a player summoner summons where it is owned; any other summoner (a quest actor or
-/// another unmapped spawn point) summons on the master client, or on the nearest player with the lowest id when the
-/// summon is close to players.
+/// The policy is written by hand. A summon by a player runs on the machine that owns that player. A summon by
+/// anything else (a quest actor, another unmapped spawn point) runs on the master client, and on a player near the
+/// summon when neither the master nor a player with a lower id is near it too.
 /// </summary>
 internal readonly partial struct SpawnSummonEvent(Entity? summoner, string summonGuid, string summonClassPath)
     : IEquatable<SpawnSummonEvent>, IGameEvent
@@ -49,7 +49,8 @@ internal readonly partial struct SpawnSummonEvent(Entity? summoner, string summo
     public readonly List<string> DisappearMontagePathList = [];
     public readonly float DestroyDelayTime;
 
-    /// <summary>Only what the policy reads, to ask before the summon exists.</summary>
+    /// <summary>Sets only the summoner and the location, the fields the policy reads, so a patch can ask the policy
+    /// before the game has spawned the summon.</summary>
     public SpawnSummonEvent(Entity? summoner, FVector location)
         : this(summoner, "", "")
     {

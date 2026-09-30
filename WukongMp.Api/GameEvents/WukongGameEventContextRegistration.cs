@@ -4,7 +4,8 @@ using WukongMp.Api.State;
 
 namespace WukongMp.Api.GameEvents;
 
-/// <summary>Registers WukongMP's game event context, next to the client's ownership and master-client ones.</summary>
+/// <summary>Registers <see cref="WukongPlayerContext"/>; the ownership and master-client contexts come from Core's
+/// client registration.</summary>
 internal sealed class WukongGameEventContextRegistration(
     WukongPlayerState playerState,
     WukongAreaState areaState,

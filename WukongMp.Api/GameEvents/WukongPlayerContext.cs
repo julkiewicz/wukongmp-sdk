@@ -4,8 +4,8 @@ using WukongMp.Api.State;
 namespace WukongMp.Api.GameEvents;
 
 /// <summary>
-/// The game event context for WukongMP's own policies: the local player, the current area and the world. Read by
-/// <see cref="ECS.GameEvents.SpawnSummonEvent"/>'s hand-written policy.
+/// The game event context for the policies WukongMP writes by hand: its player state, its area state and the ECS
+/// world. Only <see cref="ECS.GameEvents.SpawnSummonEvent"/> reads it.
 /// </summary>
 internal readonly struct WukongPlayerContext(WukongPlayerState playerState, WukongAreaState areaState, Store world)
 {

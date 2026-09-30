@@ -78,8 +78,9 @@ internal static class PatchOnCastImmobilize
         if (!DI.Instance.MappingPolicyDir.IsMainCharacterMapped(castingCharacter, out var castingMainEntity))
             return false;
 
-        DI.Instance.MappedEvent.NotifyEcsIfApplicable(new CastImmobilizeEvent(castingMainEntity.Value));
-        if (!DI.Instance.MappedEvent.CanGameEventRunLocally(new CastImmobilizeEvent(castingMainEntity.Value)).Runs())
+        var castImmobilize = new CastImmobilizeEvent(castingMainEntity.Value);
+        DI.Instance.MappedEvent.NotifyEcsIfApplicable(castImmobilize);
+        if (!DI.Instance.MappedEvent.CanGameEventRunLocally(castImmobilize).Runs())
             return false;
 
         Debug.Assert(DI.Instance.AreaState.IsMasterClient, "DI.Instance.AreaState.IsMasterClient");
@@ -214,9 +215,10 @@ internal static class PatchRelieveImmobilized
         if (!DI.Instance.MappingPolicyDir.IsCharacterMapped(owner, out var entity))
             return true;
 
-        DI.Instance.MappedEvent.NotifyEcsIfApplicable(new RelieveImmobilizeEvent(entity.Value));
+        var relieveImmobilize = new RelieveImmobilizeEvent(entity.Value);
+        DI.Instance.MappedEvent.NotifyEcsIfApplicable(relieveImmobilize);
 
-        return DI.Instance.MappedEvent.CanGameEventRunLocally(new RelieveImmobilizeEvent(entity.Value)).Runs();
+        return DI.Instance.MappedEvent.CanGameEventRunLocally(relieveImmobilize).Runs();
     }
 }
 
