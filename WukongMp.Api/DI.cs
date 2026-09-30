@@ -196,6 +196,10 @@ internal sealed class DI : IDependencyContainer
         Container.Register<INetworkedComponentRegistry, NetworkedComponentRegistry>();
         Container.RegisterMany<CustomComponentNetworkRegistry>(nonPublicServiceTypes: true);
 
+        // The schema has to exist before the first EntityStore. Every mod assembly is loaded by now: the
+        // loader loads all of them before it initializes any, and this runs from the SDK mod's init.
+        SchemaBootstrap.InitializeFromLoadedAssemblies();
+
         // TODO | WTF? - using Register<>, which does the same thing, but lazily,
         // TODO | causes the game to crash with a NullReferenceException in completely unrelated game code
         Container.RegisterInstance(new EntityStore());
