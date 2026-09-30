@@ -32,7 +32,6 @@ using ReadyM.Api.Multiplayer.Serialization;
 using ReadyM.Api.State;
 using ReadyM.Relay.Client;
 using ReadyM.Relay.Client.ConflictResolution;
-using ReadyM.Relay.Client.GameEvents;
 using ReadyM.Relay.Client.Mapping.Policies;
 using ReadyM.Relay.Client.Serialization;
 using ReadyM.Relay.Client.State;
@@ -47,7 +46,6 @@ using WukongMp.Api.Command;
 using WukongMp.Api.Configuration;
 using WukongMp.Api.ECS.Archetypes;
 using WukongMp.Api.FreeCamera;
-using WukongMp.Api.GameEvents;
 using WukongMp.Api.Input;
 using WukongMp.Api.Mapping;
 using WukongMp.Api.Serialization;
@@ -263,9 +261,11 @@ internal sealed class DI : IDependencyContainer
             }
         });
 
-        Container.Register<IGameEventContextRegistration, ClientGameEventContextRegistration>();
-        Container.Register<IGameEventContextRegistration, WukongGameEventContextRegistration>();
-        Container.Register<GameEventContextRegistry>();
+        Container.Register<IAllTypeRegistration, GameEventRegistration>();
+        Container.Register<IAllTypeRegistry, AllTypeRegistry>();
+        Container.Register<IGameEventContextSource, ResolverGameEventContextSource>();
+        Container.RegisterDelegate<IAllTypeRegistry, IGameEventContextSource, GameEventContextRegistry>(
+            (types, source) => new GameEventContextRegistry(types, source));
 
         Container.Register<IMappedEventManager, MappedEventManager>();
         Container.Register<WukongMappingPolicyDirectory>();

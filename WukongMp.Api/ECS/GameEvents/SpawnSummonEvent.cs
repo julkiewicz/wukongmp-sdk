@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Numerics;
 using b1;
 using Friflo.Engine.ECS;
+using ReadyM.Api.ECS.Worlds;
 using ReadyM.Api.Mapping.Events;
-using ReadyM.Api.Multiplayer.GameEvents;
+using ReadyM.Relay.Client.State;
 using ReadyM.Wukong.Common.ECS.Components;
 using ReadyM.Wukong.Common.ECS.Values;
 using UnrealEngine.Runtime;
 using WukongMp.Api.Configuration;
 using WukongMp.Api.ECS.Entities;
-using WukongMp.Api.GameEvents;
+using WukongMp.Api.State;
 
 namespace WukongMp.Api.ECS.GameEvents;
 
@@ -20,7 +21,8 @@ namespace WukongMp.Api.ECS.GameEvents;
 /// summon when neither the master nor a player with a lower id is near it too.
 /// </summary>
 internal readonly partial struct SpawnSummonEvent(Entity? summoner, string summonGuid, string summonClassPath)
-    : IEquatable<SpawnSummonEvent>, IGameEvent
+    : IEquatable<SpawnSummonEvent>, IGameEvent, IGameEventRequiresContext<ClientOwnershipManager>,
+      IGameEventRequiresContext<WukongPlayerState>, IGameEventRequiresContext<WukongAreaState>, IGameEventRequiresContext<Store>
 {
     public readonly Entity? Summoner = summoner;
     public readonly string SummonGuid = summonGuid;
@@ -121,13 +123,12 @@ internal readonly partial struct SpawnSummonEvent(Entity? summoner, string summo
         if (Summoner != null && (MainCharacterEntity.IsMainCharacter(Summoner.Value) || TamerEntity.IsTamer(Summoner.Value)))
         {
             // If a player is the summoner, apply ownership semantics.
-            return contexts.GetContext<OwnershipContext>().OwnsEntity(Summoner.Value);
+            return contexts.GetContext<ClientOwnershipManager>().OwnsEntity(Summoner.Value);
         }
 
         // Summoner is not a mapped entity, e.g. a BGU_QuestActor spawn point
-        var wukong = contexts.GetContext<WukongPlayerContext>();
-        var playerState = wukong.PlayerState;
-        var areaState = wukong.AreaState;
+        var playerState = contexts.GetContext<WukongPlayerState>();
+        var areaState = contexts.GetContext<WukongAreaState>();
 
         var localMainEntity = playerState.LocalMainCharacter;
         if (localMainEntity == null)
@@ -150,7 +151,7 @@ internal readonly partial struct SpawnSummonEvent(Entity? summoner, string summo
 
         // Check if master or another player with lower id is nearby
         var canSummon = true;
-        wukong.World.Query<MainCharacterComponent, TransformComponent>().ForEachEntity((ref mainComp, ref trans, entity) =>
+        contexts.GetContext<Store>().Query<MainCharacterComponent, TransformComponent>().ForEachEntity((ref mainComp, ref trans, entity) =>
         {
             if (entity == localMainEntity.Value.Entity)
                 return;
